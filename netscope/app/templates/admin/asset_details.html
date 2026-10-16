@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Asset Details{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h2>{{ asset.name }}</h2>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('admin.edit_asset', asset_id=asset.id) }}" class="btn btn-outline-light">Edit</a>
+    <form method="post" action="{{ url_for('admin.delete_asset', asset_id=asset.id) }}" onsubmit="return confirm('Delete this asset?');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="glass-card page-card">
+      <h4>Asset information</h4>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"><strong>Asset tag:</strong> {{ asset.asset_tag }}</li>
+        <li class="list-group-item"><strong>Asset name:</strong> {{ asset.name }}</li>
+        <li class="list-group-item"><strong>Category:</strong> {{ asset.category }}</li>
+        <li class="list-group-item"><strong>Brand:</strong> {{ asset.brand or 'Not provided' }}</li>
+        <li class="list-group-item"><strong>Model:</strong> {{ asset.model or 'Not provided' }}</li>
+        <li class="list-group-item"><strong>Serial number:</strong> {{ asset.serial_number }}</li>
+        <li class="list-group-item"><strong>Department:</strong> {{ asset.department or 'Not provided' }}</li>
+        <li class="list-group-item"><strong>Assigned staff:</strong> {{ asset.assigned_to.username if asset.assigned_to else 'Unassigned' }}</li>
+        <li class="list-group-item"><strong>Location:</strong> {{ asset.location or 'Not provided' }}</li>
+        <li class="list-group-item"><strong>Purchase date:</strong> {{ asset.purchase_date if asset.purchase_date else 'Not provided' }}</li>
+        <li class="list-group-item"><strong>Status:</strong> <span class="status-badge {{ asset.status|lower|replace(' ', '-') }}">{{ asset.status }}</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="glass-card page-card">
+      <h4>Assignment actions</h4>
+      <form method="post" action="{{ url_for('admin.assign_asset', asset_id=asset.id) }}" class="mb-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label for="user_id" class="form-label">Assign to staff</label>
+        <select class="form-select" id="user_id" name="user_id">
+          {% for user in asset.assigned_to.__class__.query.filter_by(role='staff').all() %}
+            <option value="{{ user.id }}" {% if asset.assigned_to and asset.assigned_to.id == user.id %}selected{% endif %}>{{ user.username }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary mt-3">Assign</button>
+      </form>
+      <form method="post" action="{{ url_for('admin.unassign_asset', asset_id=asset.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit" class="btn btn-outline-warning">Unassign</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="glass-card page-card mt-4">
+  <h4>Maintenance history</h4>
+  {% if logs %}
+    <div class="table-responsive">
+      <table class="table table-dark">
+        <thead><tr><th>Technician</th><th>Description</th><th>Cost</th><th>Performed</th></tr></thead>
+        <tbody>
+          {% for log in logs %}
+          <tr><td>{{ log.technician.username }}</td><td>{{ log.description }}</td><td>${{ '%.2f' % log.cost }}</td><td>{{ log.performed_at.strftime('%Y-%m-%d') }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state"><p>No maintenance history recorded for this asset.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

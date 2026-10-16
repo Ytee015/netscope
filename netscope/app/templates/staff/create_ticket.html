@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Ticket{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h2>Create support ticket</h2>
+</div>
+
+<div class="glass-card page-card form-card">
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="mb-3">
+      <label for="title" class="form-label">Title</label>
+      <input type="text" class="form-control" id="title" name="title" required>
+    </div>
+    <div class="mb-3">
+      <label for="description" class="form-label">Description</label>
+      <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label for="category" class="form-label">Category</label>
+        <select class="form-select" id="category" name="category" required>
+          <option value="">Select</option>
+          <option value="Hardware">Hardware</option>
+          <option value="Software">Software</option>
+          <option value="Network">Network</option>
+          <option value="Access">Access</option>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label for="priority" class="form-label">Priority</label>
+        <select class="form-select" id="priority" name="priority" required>
+          <option value="Low">Low</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="High">High</option>
+          <option value="Urgent">Urgent</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+      <div class="col-md-6">
+        <label for="support_type" class="form-label">Support type</label>
+        <select class="form-select" id="support_type" name="support_type">
+          <option value="">Select</option>
+          <option value="On-site">On-site problem</option>
+          <option value="Remote">Remote problem</option>
+        </select>
+      </div>
+      <div class="col-md-6" id="remote_support_group" style="display: none;">
+        <label for="remote_support_id" class="form-label">AnyDesk ID / Remote support ID</label>
+        <input
+          type="text"
+          class="form-control"
+          id="remote_support_id"
+          name="remote_support_id"
+          placeholder="e.g. 123 456 789"
+        >
+      </div>
+    </div>
+
+    <script>
+      const supportTypeField = document.getElementById('support_type');
+      const remoteSupportGroup = document.getElementById('remote_support_group');
+      const remoteSupportInput = document.getElementById('remote_support_id');
+
+      function toggleRemoteSupportField() {
+        const isRemote = supportTypeField.value === 'Remote';
+        remoteSupportGroup.style.display = isRemote ? 'block' : 'none';
+        if (!isRemote) {
+          remoteSupportInput.value = '';
+          remoteSupportInput.removeAttribute('required');
+        } else {
+          remoteSupportInput.setAttribute('required', 'required');
+        }
+      }
+
+      supportTypeField.addEventListener('change', toggleRemoteSupportField);
+      toggleRemoteSupportField();
+    </script>
+
+    <button type="submit" class="btn btn-primary mt-4">Create ticket</button>
+  </form>
+</div>
+{% endblock %}

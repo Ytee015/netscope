@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}NETSCOPE | IT Help Desk & Asset Management{% endblock %}
+
+{% block content %}
+<div class="landing-wrap">
+  <div class="landing-hero glass-card">
+    <div class="landing-copy">
+      <div class="landing-brand">
+        <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="NETSCOPE logo" class="landing-logo">
+        <span class="eyebrow">IT operations platform</span>
+      </div>
+      <h1>NETSCOPE</h1>
+      <div class="trust-badge">
+        <i class="bi bi-check-circle-fill"></i>
+        Trusted by IT teams for smarter support operations
+      </div>
+      <p>
+        A modern IT help desk and asset management system built to help teams track
+        devices, resolve support tickets, and keep operations running smoothly across
+        the organization.
+      </p>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <i class="bi bi-ticket-detailed-fill"></i>
+          <span>Ticket tracking and assignment</span>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-laptop-fill"></i>
+          <span>IT asset inventory and maintenance</span>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-shield-lock-fill"></i>
+          <span>Role-based access for admins, staff, and technicians</span>
+        </div>
+      </div>
+
+      <div class="cta-group">
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">Login</a>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg">Register</a>
+      </div>
+    </div>
+
+    <div class="landing-panel">
+      <div class="mini-card">
+        <span class="mini-label">Tickets</span>
+        <strong>24</strong>
+        <small>Open and in progress</small>
+      </div>
+      <div class="mini-card accent">
+        <span class="mini-label">Assets</span>
+        <strong>186</strong>
+        <small>Tracked across departments</small>
+      </div>
+      <div class="mini-card success">
+        <span class="mini-label">Resolved</span>
+        <strong>92%</strong>
+        <small>Average issue closure rate</small>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

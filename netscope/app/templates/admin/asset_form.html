@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ 'Edit Asset' if asset else 'Create Asset' }}{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h2>{{ 'Edit asset' if asset else 'Create asset' }}</h2>
+</div>
+
+<div class="glass-card page-card form-card">
+  <form method="post" action="{{ url_for('admin.edit_asset', asset_id=asset.id) if asset else url_for('admin.create_asset') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label for="asset_tag" class="form-label">Asset tag</label>
+        <input type="text" class="form-control" id="asset_tag" name="asset_tag" value="{{ asset.asset_tag if asset else '' }}" required>
+      </div>
+      <div class="col-md-6">
+        <label for="name" class="form-label">Asset name</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ asset.name if asset else '' }}" placeholder="e.g. Dell Latitude 5420" required>
+      </div>
+      <div class="col-md-6">
+        <label for="category" class="form-label">Asset category</label>
+        <input type="text" class="form-control" id="category" name="category" value="{{ asset.category if asset else '' }}" placeholder="e.g. Laptop" required>
+      </div>
+      <div class="col-md-6">
+        <label for="brand" class="form-label">Brand</label>
+        <input type="text" class="form-control" id="brand" name="brand" value="{{ asset.brand if asset else '' }}" placeholder="e.g. Dell">
+      </div>
+      <div class="col-md-6">
+        <label for="model" class="form-label">Model</label>
+        <input type="text" class="form-control" id="model" name="model" value="{{ asset.model if asset else '' }}" placeholder="e.g. Latitude 5420">
+      </div>
+      <div class="col-md-6">
+        <label for="serial_number" class="form-label">Serial number</label>
+        <input type="text" class="form-control" id="serial_number" name="serial_number" value="{{ asset.serial_number if asset else '' }}" required>
+      </div>
+      <div class="col-md-4">
+        <label for="department" class="form-label">Department</label>
+        <input type="text" class="form-control" id="department" name="department" value="{{ asset.department if asset else '' }}" placeholder="e.g. Finance">
+      </div>
+      <div class="col-md-4">
+        <label for="assigned_to_id" class="form-label">Assigned staff</label>
+        <select class="form-select" id="assigned_to_id" name="assigned_to_id">
+          <option value="">Unassigned</option>
+          {% for user in users %}
+            <option value="{{ user.id }}" {% if asset and asset.assigned_to_id == user.id %}selected{% endif %}>{{ user.username }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="location" class="form-label">Location</label>
+        <input type="text" class="form-control" id="location" name="location" value="{{ asset.location if asset else '' }}" placeholder="e.g. Office 2A">
+      </div>
+      <div class="col-md-4">
+        <label for="purchase_date" class="form-label">Purchase date</label>
+        <input type="date" class="form-control" id="purchase_date" name="purchase_date" value="{{ asset.purchase_date.isoformat() if asset and asset.purchase_date else '' }}">
+      </div>
+      <div class="col-md-4">
+        <label for="status" class="form-label">Status</label>
+        <select class="form-select" id="status" name="status">
+          {% for option in ['Available','Assigned','Maintenance','Retired'] %}
+            <option value="{{ option }}" {% if asset and asset.status == option %}selected{% endif %}>{{ option }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="mt-4">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="{{ url_for('admin.assets') }}" class="btn btn-outline-light">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

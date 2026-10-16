@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Ticket Management{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h2>Ticket management</h2>
+</div>
+
+<div class="glass-card page-card mb-4">
+  <form method="get" class="row g-3 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label">Status</label>
+      <select class="form-select" name="status">
+        <option value="">All</option>
+        {% for value in ['Open','In Progress','Resolved','Closed'] %}
+          <option value="{{ value }}">{{ value }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Priority</label>
+      <select class="form-select" name="priority">
+        <option value="">All</option>
+        {% for value in ['Low','Medium','High','Urgent'] %}
+          <option value="{{ value }}">{{ value }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Category</label>
+      <select class="form-select" name="category">
+        <option value="">All</option>
+        {% for value in ['Hardware','Software','Network','Access'] %}
+          <option value="{{ value }}">{{ value }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Technician</label>
+      <select class="form-select" name="technician_id">
+        <option value="">All</option>
+        {% for technician in technicians %}
+          <option value="{{ technician.id }}">{{ technician.username }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary">Filter</button>
+    </div>
+  </form>
+</div>
+
+<div class="glass-card page-card">
+  {% if tickets %}
+  <div class="table-responsive">
+    <table class="table table-dark">
+      <thead><tr><th>Title</th><th>Status</th><th>Priority</th><th>Category</th><th>Technician</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for ticket in tickets %}
+        <tr>
+          <td>{{ ticket.title }}</td>
+          <td><span class="status-badge {{ ticket.status|lower|replace(' ', '-') }}">{{ ticket.status }}</span></td>
+          <td>{{ ticket.priority }}</td>
+          <td>{{ ticket.category }}</td>
+          <td>{{ ticket.technician.username if ticket.technician else 'Unassigned' }}</td>
+          <td><a href="{{ url_for('admin.ticket_detail', ticket_id=ticket.id) }}" class="btn btn-sm btn-outline-light">View</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="empty-state"><p>No tickets match the current filters.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

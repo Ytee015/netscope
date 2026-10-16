@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Assigned Queue{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h2>Assigned ticket queue</h2>
+</div>
+
+<div class="glass-card page-card">
+  {% if tickets %}
+    <div class="ticket-list-stack">
+      {% for ticket in tickets %}
+        <div class="ticket-row-card">
+          <div class="ticket-row-main">
+            <div>
+              <div class="ticket-row-title">#{{ ticket.id }} · {{ ticket.title }}</div>
+              <div class="ticket-row-meta">{{ ticket.creator.username }} · {{ ticket.priority }} · {{ ticket.category }}</div>
+            </div>
+            <div class="ticket-row-status">
+              <span class="status-badge {{ ticket.status|lower|replace(' ', '-') }}">{{ ticket.status }}</span>
+            </div>
+          </div>
+
+          <div class="ticket-mini-chat" data-ticket-id="{{ ticket.id }}">
+            <div class="ticket-mini-chat-head">
+              <strong>Ticket chat</strong>
+              <a href="{{ url_for('technician.ticket_detail', ticket_id=ticket.id) }}" class="btn btn-link btn-sm">Open</a>
+            </div>
+            <div class="ticket-mini-chat-messages">
+              {% set ticket_messages = ticket_messages_by_ticket.get(ticket.id, []) %}
+              {% if ticket_messages %}
+                {% for message in ticket_messages %}
+                  <div class="mini-chat-message {% if message.sender_id == current_user.id %}mine{% endif %}">
+                    <span>{{ message.sender.username }}:</span>
+                    <small>{{ message.created_at.strftime('%b %d, %H:%M') }}</small>
+                    <div>{{ message.content }}</div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="mini-chat-empty">No messages yet.</div>
+              {% endif %}
+            </div>
+            <form class="ticket-mini-chat-form" data-ticket-chat-form="true">
+              <textarea name="content" rows="2" placeholder="Send a quick update…" required></textarea>
+              <button type="submit" class="btn btn-sm btn-primary">Send</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state"><p>No tickets are currently assigned to you.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

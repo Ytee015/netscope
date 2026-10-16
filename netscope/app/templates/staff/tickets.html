@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}My Tickets{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h2>My tickets</h2>
+  </div>
+  <a href="{{ url_for('staff.create_ticket') }}" class="btn btn-primary">New ticket</a>
+</div>
+
+<div class="glass-card page-card">
+  {% if tickets %}
+    <div class="ticket-list-stack">
+      {% for ticket in tickets %}
+        <div class="ticket-row-card">
+          <div class="ticket-row-main">
+            <div>
+              <div class="ticket-row-title">{{ ticket.title }}</div>
+              <div class="ticket-row-meta">{{ ticket.category }} · {{ ticket.priority }}</div>
+            </div>
+            <div class="ticket-row-status">
+              <span class="status-badge {{ ticket.status|lower|replace(' ', '-') }}">{{ ticket.status }}</span>
+            </div>
+          </div>
+
+          <div class="ticket-mini-chat" data-ticket-id="{{ ticket.id }}">
+            <div class="ticket-mini-chat-head">
+              <strong>Ticket chat</strong>
+              <a href="{{ url_for('staff.ticket_detail', ticket_id=ticket.id) }}" class="btn btn-link btn-sm">Open</a>
+            </div>
+            <div class="ticket-mini-chat-messages">
+              {% set ticket_messages = ticket_messages_by_ticket.get(ticket.id, []) %}
+              {% if ticket_messages %}
+                {% for message in ticket_messages %}
+                  <div class="mini-chat-message {% if message.sender_id == current_user.id %}mine{% endif %}">
+                    <span>{{ message.sender.username }}:</span>
+                    <small>{{ message.created_at.strftime('%b %d, %H:%M') }}</small>
+                    <div>{{ message.content }}</div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="mini-chat-empty">No messages yet.</div>
+              {% endif %}
+            </div>
+            <form class="ticket-mini-chat-form" data-ticket-chat-form="true">
+              <textarea name="content" rows="2" placeholder="Message this ticket…" required></textarea>
+              <button type="submit" class="btn btn-sm btn-primary">Send</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state"><p>You have not created any tickets yet.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

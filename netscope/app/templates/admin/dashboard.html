@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h2>Administrator dashboard</h2>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="stat-card glass-card"><span>Total assets</span><h3>{{ total_assets }}</h3></div></div>
+  <div class="col-md-3"><div class="stat-card glass-card"><span>Total users</span><h3>{{ total_users }}</h3></div></div>
+  <div class="col-md-3"><div class="stat-card glass-card"><span>Open tickets</span><h3>{{ open_tickets }}</h3></div></div>
+  <div class="col-md-3"><div class="stat-card glass-card"><span>Resolved tickets</span><h3>{{ resolved_tickets }}</h3></div></div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="glass-card page-card">
+      <h4>Ticket status overview</h4>
+      <canvas id="ticketStatusChart" data-chart='{{ {"type": "doughnut", "data": {"labels": ["Open", "In Progress", "Resolved", "Closed"], "datasets": [{"data": [status_counts['Open'], status_counts['In Progress'], status_counts['Resolved'], status_counts['Closed']], "backgroundColor": ["#38BDF8", "#F59E0B", "#22C55E", "#EF4444"]}]}} | tojson }}'></canvas>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="glass-card page-card">
+      <h4>Monthly ticket activity</h4>
+      <canvas id="monthlyTicketChart" data-chart='{{ {"type": "line", "data": {"labels": monthly_labels, "datasets": [{"label": "Tickets", "data": monthly_values, "borderColor": "#8B5CF6", "backgroundColor": "rgba(139,92,246,0.2)", "fill": true}]}} | tojson }}'></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mt-1">
+  <div class="col-lg-6">
+    <div class="glass-card page-card">
+      <h4>Asset status overview</h4>
+      <canvas id="assetStatusChart" data-chart='{"type":"bar","data":{"labels":["Available","Assigned","Maintenance","Retired"],"datasets":[{"label":"Assets","data":[{{ asset_status_counts[0].count }}, {{ asset_status_counts[1].count }}, {{ asset_status_counts[2].count }}, {{ asset_status_counts[3].count }}],"backgroundColor":["#22C55E","#6366F1","#F59E0B","#EF4444"]}]}}'></canvas>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="glass-card page-card">
+      <h4>Current counts</h4>
+      <div class="list-group list-group-flush">
+        <div class="list-group-item"><strong>Open:</strong> {{ status_counts['Open'] }}</div>
+        <div class="list-group-item"><strong>In Progress:</strong> {{ status_counts['In Progress'] }}</div>
+        <div class="list-group-item"><strong>Resolved:</strong> {{ status_counts['Resolved'] }}</div>
+        <div class="list-group-item"><strong>Closed:</strong> {{ status_counts['Closed'] }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="glass-card page-card mt-4">
+  <div class="section-header mb-3">
+    <h4 class="mb-0">Ticket assignment queue</h4>
+    <a href="{{ url_for('admin.tickets') }}" class="btn btn-sm btn-outline-light">View all tickets</a>
+  </div>
+
+  {% if pending_tickets %}
+    <div class="assignment-list">
+      {% for ticket in pending_tickets %}
+        <div class="assignment-item">
+          <div class="assignment-main">
+            <div class="assignment-title-row">
+              <strong>{{ ticket.title }}</strong>
+              <span class="status-badge {{ ticket.status|lower|replace(' ', '-') }}">{{ ticket.status }}</span>
+            </div>
+            <div class="assignment-meta">{{ ticket.category }} · {{ ticket.priority }} · {{ ticket.created_at.strftime('%b %d, %H:%M') }}</div>
+            <div class="assignment-meta">Created by {{ ticket.creator.username if ticket.creator else 'Unknown user' }}</div>
+          </div>
+
+          <form method="post" action="{{ url_for('admin.assign_ticket', ticket_id=ticket.id) }}" class="assignment-form">
+            <select name="technician_id" class="form-select form-select-sm">
+              <option value="">Assign technician</option>
+              {% for technician in technicians %}
+                <option value="{{ technician.id }}" {% if ticket.technician_id == technician.id %}selected{% endif %}>{{ technician.username }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-sm btn-primary">Assign</button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state"><p>No tickets need technician assignment right now.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

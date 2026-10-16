@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h2>Reports</h2>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="glass-card page-card">
+      <h4>Asset status</h4>
+      <canvas id="assetStatusReportChart" data-chart='{"type":"doughnut","data":{"labels":["Available","Assigned","Maintenance","Retired"],"datasets":[{"data":[{{ asset_status[0].count }}, {{ asset_status[1].count }}, {{ asset_status[2].count }}, {{ asset_status[3].count }}],"backgroundColor":["#22C55E","#6366F1","#F59E0B","#EF4444"]}]}}'></canvas>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="glass-card page-card">
+      <h4>Ticket status</h4>
+      <canvas id="ticketStatusReportChart" data-chart='{"type":"doughnut","data":{"labels":["Open","In Progress","Resolved","Closed"],"datasets":[{"data":[{{ ticket_status[0].count }}, {{ ticket_status[1].count }}, {{ ticket_status[2].count }}, {{ ticket_status[3].count }}],"backgroundColor":["#38BDF8","#F59E0B","#22C55E","#EF4444"]}]}}'></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mt-1">
+  <div class="col-md-6">
+    <div class="glass-card page-card">
+      <h4>Ticket priority</h4>
+      <ul class="list-group list-group-flush">
+        {% for item in ticket_priorities %}
+        <li class="list-group-item"><strong>{{ item.label }}:</strong> {{ item.count }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="glass-card page-card">
+      <h4>Ticket category</h4>
+      <ul class="list-group list-group-flush">
+        {% for item in ticket_categories %}
+        <li class="list-group-item"><strong>{{ item.label }}:</strong> {{ item.count }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="glass-card page-card mt-4">
+  <h4>Technician workload</h4>
+  {% if workload %}
+    <ul class="list-group list-group-flush">
+      {% for item in workload %}
+      <li class="list-group-item"><strong>{{ item.name }}:</strong> {{ item.count }} assigned tickets</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="empty-state"><p>No technicians available.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

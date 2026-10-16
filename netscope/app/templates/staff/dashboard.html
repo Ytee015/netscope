@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Staff Dashboard{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h2>Staff dashboard</h2>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="stat-card glass-card"><span>Assigned assets</span><h3>{{ assigned_assets }}</h3></div></div>
+  <div class="col-md-3"><div class="stat-card glass-card"><span>Open tickets</span><h3>{{ open_tickets }}</h3></div></div>
+  <div class="col-md-3"><div class="stat-card glass-card"><span>In progress</span><h3>{{ in_progress_tickets }}</h3></div></div>
+  <div class="col-md-3"><div class="stat-card glass-card"><span>Resolved</span><h3>{{ resolved_tickets }}</h3></div></div>
+</div>
+{% endblock %}

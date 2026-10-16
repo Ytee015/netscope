@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - NETSCOPE{% endblock %}
+
+{% block content %}
+<div class="auth-layout">
+  <div class="auth-card glass-card">
+    <div class="auth-header">
+      <h2>Create account</h2>
+      <p>Choose your NETSCOPE role to get started.</p>
+    </div>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" name="username" required>
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+      </div>
+      <div class="mb-3">
+        <label for="role" class="form-label">Role</label>
+        <select class="form-select" id="role" name="role" required>
+          <option value="staff" selected>Staff</option>
+          <option value="technician">Technician</option>
+        </select>
+        <div class="form-text">Only staff and technician accounts can be created from this public registration form.</div>
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+      </div>
+      <div class="mb-3">
+        <label for="confirm_password" class="form-label">Confirm Password</label>
+        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Register</button>
+    </form>
+    <div class="auth-links">
+      <a href="{{ url_for('auth.login') }}">Back to login</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

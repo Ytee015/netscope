@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}NETSCOPE{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  </head>
+  <body data-user-id="{{ current_user.id if current_user.is_authenticated else '' }}" data-user-role="{{ current_user.role if current_user.is_authenticated else '' }}">
+    <div class="app-shell">
+      {% if current_user.is_authenticated %}
+      <aside class="sidebar glass-card">
+        <div class="brand-box">
+          <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="NETSCOPE logo" class="brand-logo">
+          <span>NETSCOPE</span>
+        </div>
+        <nav class="side-nav">
+          {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('admin.dashboard') }}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="{{ url_for('admin.assets') }}"><i class="bi bi-laptop"></i> Assets</a>
+            <a href="{{ url_for('admin.users') }}"><i class="bi bi-people"></i> Users</a>
+            <a href="{{ url_for('admin.tickets') }}"><i class="bi bi-ticket-detailed"></i> Tickets</a>
+            <a href="{{ url_for('admin.reports') }}"><i class="bi bi-graph-up"></i> Reports</a>
+          {% elif current_user.role == 'staff' %}
+            <a href="{{ url_for('staff.dashboard') }}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="{{ url_for('staff.assets') }}"><i class="bi bi-laptop"></i> My Assets</a>
+            <a href="{{ url_for('staff.create_ticket') }}"><i class="bi bi-plus-circle"></i> New Ticket</a>
+            <a href="{{ url_for('staff.tickets') }}"><i class="bi bi-ticket-detailed"></i> My Tickets</a>
+          {% elif current_user.role == 'technician' %}
+            <a href="{{ url_for('technician.dashboard') }}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="{{ url_for('technician.queue') }}">
+              <i class="bi bi-list-check"></i> Queue
+              {% if tech_notification_count %}
+                <span class="nav-badge">{{ tech_notification_count }}</span>
+              {% endif %}
+            </a>
+            <a href="{{ url_for('technician.maintenance') }}"><i class="bi bi-tools"></i> Maintenance</a>
+          {% endif %}
+          <a href="{{ url_for('auth.profile') }}"><i class="bi bi-person-circle"></i> Profile</a>
+        </nav>
+      </aside>
+      {% endif %}
+
+      <main class="page-main">
+        {% if current_user.is_authenticated %}
+        <header class="topbar glass-card">
+          <div>
+            <div class="breadcrumb">NETSCOPE / {{ request.endpoint.split('.')[0]|title if request.endpoint else 'Home' }}</div>
+          </div>
+          <div class="topbar-actions">
+            <span class="username-pill">{{ current_user.username }}</span>
+            <span class="role-badge {{ current_user.role }}">{{ current_user.role|title }}</span>
+            {% if current_user.role == 'admin' %}
+            <div class="notification-wrapper">
+              <button type="button" id="adminNotificationToggle" class="btn btn-sm btn-outline-light position-relative notification-bell" aria-label="Admin notifications">
+                <i class="bi bi-bell"></i>
+                {% if admin_notification_count %}
+                <span id="adminNotificationCount" class="notification-count">{{ admin_notification_count }}</span>
+                {% endif %}
+              </button>
+              <div id="adminNotificationPanel" class="notification-panel glass-card" hidden>
+                <div class="notification-header-row">
+                  <div class="notification-header">Notifications</div>
+                  {% if admin_notifications %}
+                    <button type="button" id="adminMarkAllRead" class="btn btn-link notification-mark-read">Mark all read</button>
+                  {% endif %}
+                </div>
+                {% if admin_notifications %}
+                  {% for notification in admin_notifications %}
+                  <a href="{{ notification.link }}" class="notification-item {% if not notification.is_read %}unread{% endif %}">
+                    <div class="notification-item-header">
+                      <span>{{ notification.message }}</span>
+                      {% if not notification.is_read %}
+                      <span class="notification-new-pill">Unread</span>
+                      {% endif %}
+                    </div>
+                    <small>{{ notification.created_at.strftime('%b %d, %H:%M') }}</small>
+                  </a>
+                  {% endfor %}
+                {% else %}
+                  <div class="notification-empty">No notifications yet.</div>
+                {% endif %}
+              </div>
+            </div>
+            {% endif %}
+            <a class="btn btn-sm btn-outline-light" href="{{ url_for('auth.profile') }}">Profile</a>
+            <form method="post" action="{{ url_for('auth.logout') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+              <button type="submit" class="btn btn-sm btn-danger">Logout</button>
+            </form>
+          </div>
+        </header>
+        {% endif %}
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="toast-container position-fixed top-0 end-0 p-3">
+              {% for category, message in messages %}
+                <div class="toast align-items-center border-0 show notification-toast {{ category }}" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+                  <div class="d-flex align-items-start gap-2">
+                    <div class="toast-icon">
+                      <i class="bi bi-bell-fill"></i>
+                    </div>
+                    <div class="toast-body">
+                      {{ message }}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <div class="page-content">
+          {% block content %}{% endblock %}
+        </div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </body>
+</html>
